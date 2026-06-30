@@ -360,8 +360,8 @@ with tab1:
         return "color:#f85149"
 
     styled = (display_df.style
-              .applymap(colour_grade, subset=["Credit Grade"])
-              .applymap(colour_pd, subset=["PD (%)"]))
+              .map(colour_grade, subset=["Credit Grade"])
+              .map(colour_pd, subset=["PD (%)"]))
     st.dataframe(styled, use_container_width=True, height=480)
 
 

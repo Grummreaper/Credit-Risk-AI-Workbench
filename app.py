@@ -407,13 +407,17 @@ with tab2:
         # SHAP waterfall for live input
         st.markdown('<div class="section-header">SHAP Explanation</div>', unsafe_allow_html=True)
         shap_live = explainer.shap_values(X_live)
-        # For binary classifier shap_values returns list [class0, class1]
+        # shap_values() returns list [c0,c1], 3-D array (samples,feats,classes),
+        # or 2-D array (samples,feats) depending on shap/sklearn version
         if isinstance(shap_live, list):
             sv = shap_live[1][0]
-            base = explainer.expected_value[1]
+            base = float(explainer.expected_value[1])
+        elif shap_live.ndim == 3:
+            sv = shap_live[0, :, 1]
+            base = float(explainer.expected_value[1])
         else:
             sv = shap_live[0]
-            base = explainer.expected_value
+            base = float(explainer.expected_value)
 
         feat_labels = ["DTI","Credit Score","Rev Growth","Leverage","Int. Coverage"]
         colours = ["#f85149" if v > 0 else "#3fb950" for v in sv]
@@ -439,6 +443,8 @@ with tab2:
         # mean |SHAP| across test set
         if isinstance(shap_vals_test, list):
             sv_test = shap_vals_test[1]
+        elif shap_vals_test.ndim == 3:
+            sv_test = shap_vals_test[:, :, 1]
         else:
             sv_test = shap_vals_test
 
@@ -709,6 +715,9 @@ with tab4:
     shap_loan = explainer.shap_values(X_loan)
     if isinstance(shap_loan, list):
         sv_loan = shap_loan[1][0]
+        base_val = float(explainer.expected_value[1])
+    elif shap_loan.ndim == 3:
+        sv_loan = shap_loan[0, :, 1]
         base_val = float(explainer.expected_value[1])
     else:
         sv_loan = shap_loan[0]
